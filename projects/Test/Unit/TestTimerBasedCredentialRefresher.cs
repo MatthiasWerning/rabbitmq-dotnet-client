@@ -154,28 +154,46 @@ namespace Test.Unit
         [Fact]
         public async Task TestRefreshTokenUpdateCallback()
         {
-            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            int cbCalledTimes = 0;
+            var tcs1 = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var tcs2 = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            int cb1CalledTimes = 0;
+            int cb2CalledTimes = 0;
+
+            void cancelTcs()
+            {
+                tcs1.TrySetCanceled();
+                tcs2.TrySetCanceled();
+            }
 
             using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
             {
-                using (CancellationTokenRegistration ctr = cts.Token.Register(() => { tcs.TrySetCanceled(); }))
+                using (CancellationTokenRegistration ctr = cts.Token.Register(cancelTcs))
                 {
                     var credentialsProvider = new MockCredentialsProvider(_testOutputHelper, TimeSpan.FromSeconds(1));
 
-                    Task cb(bool arg)
+                    Task cb1(bool arg)
                     {
-                        cbCalledTimes++;
-                        tcs.SetResult(arg);
+                        cb1CalledTimes++;
+                        tcs1.SetResult(arg);
                         return Task.CompletedTask;
                     }
 
-                    _refresher.Register(credentialsProvider, cb);
-                    Assert.True(await tcs.Task);
-                    Assert.Equal(1, credentialsProvider.RefreshCalledTimes);
-                    Assert.Equal(1, cbCalledTimes);
+                    Task cb2(bool arg)
+                    {
+                        cb2CalledTimes++;
+                        tcs2.SetResult(arg);
+                        return Task.CompletedTask;
+                    }
 
-                    Assert.Throws<InvalidOperationException>(() => _refresher.Register(credentialsProvider, cb));
+                    _refresher.Register(credentialsProvider, cb1);
+                    Assert.True(await tcs1.Task);
+                    Assert.Equal(1, credentialsProvider.RefreshCalledTimes);
+                    Assert.Equal(1, cb1CalledTimes);
+
+                    _refresher.Register(credentialsProvider, cb2);
+                    Assert.True(await tcs2.Task);
+                    Assert.Equal(2, credentialsProvider.RefreshCalledTimes);
+                    Assert.Equal(1, cb2CalledTimes);
 
                     Assert.True(_refresher.Unregister(credentialsProvider));
                 }

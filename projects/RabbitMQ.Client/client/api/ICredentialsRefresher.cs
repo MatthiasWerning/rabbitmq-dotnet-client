@@ -78,11 +78,6 @@ namespace RabbitMQ.Client
 
         public ICredentialsProvider Register(ICredentialsProvider provider, ICredentialsRefresher.NotifyCredentialRefreshedAsync callback)
         {
-            if (_credentialsProvider is not null)
-            {
-                throw new InvalidOperationException("Already registered a credentials provider.");
-            }
-
             // TODO should this be ArgumentException?
             if (provider.ValidUntil is null)
             {
@@ -94,6 +89,8 @@ namespace RabbitMQ.Client
             {
                 return provider;
             }
+
+            Reset();
 
             _credentialsProvider = provider;
             _registration = new TimerRegistration(callback);
@@ -129,21 +126,26 @@ namespace RabbitMQ.Client
 
             try
             {
-                if (_credentialsProvider is not null)
-                {
-                    TimerBasedCredentialRefresherEventSource.Log.Unregistered(_credentialsProvider.Name);
-                    _credentialsProvider = null;
-                }
-
-                if (_registration is not null)
-                {
-                    _registration.Dispose();
-                    _registration = null;
-                }
+                Reset();
             }
             finally
             {
                 _disposed = true;
+            }
+        }
+
+        private void Reset()
+        {
+            if (_credentialsProvider is not null)
+            {
+                TimerBasedCredentialRefresherEventSource.Log.Unregistered(_credentialsProvider.Name);
+                _credentialsProvider = null;
+            }
+
+            if (_registration is not null)
+            {
+                _registration.Dispose();
+                _registration = null;
             }
         }
 
