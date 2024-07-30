@@ -484,6 +484,7 @@ namespace RabbitMQ.Client.Framing.Impl
 
                 _session0.Dispose();
                 _mainLoopCts.Dispose();
+                _config.CredentialsRefresher.Dispose();
             }
             catch (OperationInterruptedException)
             {

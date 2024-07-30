@@ -1,1 +1,2 @@
 RabbitMQ.Client.BasicProperties.BasicProperties(RabbitMQ.Client.IReadOnlyBasicProperties! input) -> void
+RabbitMQ.Client.TimerBasedCredentialRefresher.Dispose() -> void

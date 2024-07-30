@@ -61,7 +61,7 @@ namespace RabbitMQ.Client
             get { return _password; }
         }
 
-        public Nullable<TimeSpan> ValidUntil
+        public TimeSpan? ValidUntil
         {
             get
             {

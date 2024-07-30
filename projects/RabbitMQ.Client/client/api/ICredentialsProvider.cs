@@ -29,6 +29,8 @@
 //  Copyright (c) 2007-2024 Broadcom. All Rights Reserved.
 //---------------------------------------------------------------------------
 
+using System;
+
 namespace RabbitMQ.Client
 {
     public interface ICredentialsProvider
@@ -41,7 +43,7 @@ namespace RabbitMQ.Client
         /// If credentials have an expiry time this property returns the interval.
         /// Otherwise, it returns null.
         /// </summary>
-        System.TimeSpan? ValidUntil { get; }
+        TimeSpan? ValidUntil { get; }
 
         /// <summary>
         /// Before the credentials are available, be it Username, Password or ValidUntil,

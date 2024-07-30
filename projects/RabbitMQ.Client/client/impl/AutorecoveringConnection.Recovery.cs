@@ -260,6 +260,9 @@ namespace RabbitMQ.Client.Framing.Impl
                  * https://github.com/rabbitmq/rabbitmq-dotnet-client/issues/1623 
                  */
                 _innerConnection = maybeNewInnerConnection;
+
+                defunctConnection.Dispose();
+
                 return true;
             }
             catch (Exception e)
