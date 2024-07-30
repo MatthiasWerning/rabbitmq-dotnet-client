@@ -200,7 +200,7 @@ namespace RabbitMQ.Client.Framing.Impl
 
         private async Task NotifyCredentialRefreshedAsync(bool succesfully)
         {
-            if (succesfully)
+            if (succesfully && IsOpen)
             {
                 using var cts = new CancellationTokenSource(InternalConstants.DefaultConnectionCloseTimeout);
                 await UpdateSecretAsync(_config.CredentialsProvider.Password, "Token refresh", cts.Token)
